@@ -1,37 +1,37 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\",
+  "WorkspaceRootPath": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\utils\\doubleutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\utils\\doubleutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\modelfromcad\\modelfromcadview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\modelfromcad\\modelfromcadview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\modelfromcad\\modelfromcadview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\modelfromcad\\modelfromcadview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\utils\\doubleutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\utils\\doubleutils.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\modelfromcad\\modelfromcadview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\modelfromcad\\modelfromcadview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\modelfromcad\\beaminfocollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\modelfromcad\\beaminfocollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\modelfromcad\\beaminfocollection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\modelfromcad\\modelfromcadmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\modelfromcad\\modelfromcadmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\modelfromcad\\modelfromcadmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\modelfromcad\\comrunningobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\modelfromcad\\comrunningobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\modelfromcad\\comrunningobject.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\utils\\collectionviewhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\utils\\collectionviewhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\utils\\collectionviewhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\00.work\\datn_trongbs\\projectapp\\projectapp\\projectapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "AbsoluteMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|c:\\1.code\\datnphuc\\projectapp\\projectapp\\projectapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{A8D6709B-AB99-4DAD-B2DB-84DF7EDB789E}|ProjectApp\\ProjectApp.csproj|solutionrelative:projectapp\\projectapp.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
@@ -42,20 +42,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 30,
+          "SelectedChildIndex": 27,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "ModelFromCadModels.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
               "RelativeDocumentMoniker": "ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
               "RelativeToolTip": "ProjectApp\\ModelFromCad\\ModelFromCadModels.cs",
               "ViewState": "AgIAAMQAAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-03T09:56:05.964Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-03T09:56:05.964Z"
             },
             {
               "$type": "Bookmark",
@@ -163,11 +162,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ModelFromCadView.xaml",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
               "RelativeDocumentMoniker": "ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
               "RelativeToolTip": "ProjectApp\\ModelFromCad\\ModelFromCadView.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2026-01-03T09:56:06.53Z",
@@ -177,35 +176,33 @@
               "$type": "Document",
               "DocumentIndex": 3,
               "Title": "BeamInfoCollection.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
               "RelativeDocumentMoniker": "ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
               "RelativeToolTip": "ProjectApp\\ModelFromCad\\BeamInfoCollection.cs",
               "ViewState": "AgIAAHYAAAAAAAAAAAAQwH0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-03T09:53:36.026Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-03T09:53:36.026Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "ModelFromCadView.xaml.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
               "RelativeDocumentMoniker": "ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
               "RelativeToolTip": "ProjectApp\\ModelFromCad\\ModelFromCadView.xaml.cs",
               "ViewState": "AgIAALMBAAAAAAAAAAASwMABAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-01T14:44:01.405Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-01T14:44:01.405Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "DoubleUtils.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\Utils\\DoubleUtils.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\Utils\\DoubleUtils.cs",
               "RelativeDocumentMoniker": "ProjectApp\\Utils\\DoubleUtils.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\Utils\\DoubleUtils.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\Utils\\DoubleUtils.cs",
               "RelativeToolTip": "ProjectApp\\Utils\\DoubleUtils.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -216,22 +213,21 @@
               "$type": "Document",
               "DocumentIndex": 5,
               "Title": "ComRunningObject.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ComRunningObject.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ComRunningObject.cs",
               "RelativeDocumentMoniker": "ProjectApp\\ModelFromCad\\ComRunningObject.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ModelFromCad\\ComRunningObject.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ModelFromCad\\ComRunningObject.cs",
               "RelativeToolTip": "ProjectApp\\ModelFromCad\\ComRunningObject.cs",
               "ViewState": "AgIAAA8AAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-03T09:51:21.121Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-03T09:51:21.121Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
               "Title": "CollectionViewHelper.cs",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\Utils\\CollectionViewHelper.cs",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\Utils\\CollectionViewHelper.cs",
               "RelativeDocumentMoniker": "ProjectApp\\Utils\\CollectionViewHelper.cs",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\Utils\\CollectionViewHelper.cs",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\Utils\\CollectionViewHelper.cs",
               "RelativeToolTip": "ProjectApp\\Utils\\CollectionViewHelper.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
@@ -241,9 +237,9 @@
               "$type": "Document",
               "DocumentIndex": 7,
               "Title": "ProjectApp.csproj",
-              "DocumentMoniker": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ProjectApp.csproj",
+              "DocumentMoniker": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ProjectApp.csproj",
               "RelativeDocumentMoniker": "ProjectApp\\ProjectApp.csproj",
-              "ToolTip": "C:\\00.WORK\\DATN_TrongBS\\ProjectApp\\ProjectApp\\ProjectApp.csproj",
+              "ToolTip": "C:\\1.CODE\\DATNPHUC\\ProjectApp\\ProjectApp\\ProjectApp.csproj",
               "RelativeToolTip": "ProjectApp\\ProjectApp.csproj",
               "ViewState": "AgIAADUAAAAAAAAAAAAQwDwAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",

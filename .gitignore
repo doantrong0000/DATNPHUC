@@ -52,3 +52,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+*.vsidx
+*.json
+*.config
+/Kheang_DATN/DATN_AUTO_CREATE_PART/.vs
+*.v2
+*.resx
+*.settings
+*.v2
+*.bin
