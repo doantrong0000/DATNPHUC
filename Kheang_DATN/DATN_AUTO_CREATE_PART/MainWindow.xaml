@@ -4,9 +4,98 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DATN_AUTO_CREATE_PART"
+        xmlns:viewmodels="clr-namespace:DATN_AUTO_CREATE_PART.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="Auto Create Part from CAD" Height="600" Width="800">
+    <Window.DataContext>
+        <viewmodels:MainViewModel />
+    </Window.DataContext>
+    
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Scan CAD Beams" Command="{Binding ScanCadBeamsCommand}" Width="120" Height="30" Margin="0,0,10,0"/>
+            <Button Content="Scan CAD Columns" Command="{Binding ScanCadColumnsCommand}" Width="120" Height="30" Margin="0,0,10,0"/>
+            <Button Content="Scan CAD Floors" Command="{Binding ScanCadFloorsCommand}" Width="120" Height="30" Margin="0,0,10,0"/>
+        </StackPanel>
+
+        <TabControl Grid.Row="1">
+            <TabItem Header="Beams">
+                <DataGrid ItemsSource="{Binding BeamCollections}" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mark/Text" Binding="{Binding Text}" Width="*"/>
+                        <DataGridTextColumn Header="Width" Binding="{Binding Width}" Width="*"/>
+                        <DataGridTextColumn Header="Height" Binding="{Binding Height}" Width="*"/>
+                        <DataGridTextColumn Header="Count" Binding="{Binding Number}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Columns">
+                <DataGrid ItemsSource="{Binding ColumnCollections}" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Mark/Text" Binding="{Binding Text}" Width="*"/>
+                        <DataGridTextColumn Header="Width" Binding="{Binding Width}" Width="*"/>
+                        <DataGridTextColumn Header="Height" Binding="{Binding Height}" Width="*"/>
+                        <DataGridTextColumn Header="Count" Binding="{Binding Number}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Floors (Sàn)">
+                <DataGrid ItemsSource="{Binding FloorCollections}" AutoGenerateColumns="False" CanUserAddRows="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Area (m2)" Binding="{Binding Area}" Width="*"/>
+                        <DataGridTextColumn Header="Count" Binding="{Binding Number}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Grid (Lưới)">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Coordinate X:" Grid.Row="0" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.CoordinateX, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="1" Margin="0,5"/>
+
+                    <TextBlock Text="Coordinate Y:" Grid.Row="1" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.CoordinateY, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1" Margin="0,5"/>
+
+                    <TextBlock Text="Coordinate Z (Levels):" Grid.Row="2" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.CoordinateZ, UpdateSourceTrigger=PropertyChanged}" Grid.Row="2" Grid.Column="1" Margin="0,5"/>
+
+                    <TextBlock Text="Label X:" Grid.Row="3" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.LabelX, UpdateSourceTrigger=PropertyChanged}" Grid.Row="3" Grid.Column="1" Margin="0,5"/>
+
+                    <TextBlock Text="Label Y:" Grid.Row="4" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.LabelY, UpdateSourceTrigger=PropertyChanged}" Grid.Row="4" Grid.Column="1" Margin="0,5"/>
+
+                    <TextBlock Text="Label Z:" Grid.Row="5" Grid.Column="0" Margin="0,5"/>
+                    <TextBox Text="{Binding GridSettings.LabelZ, UpdateSourceTrigger=PropertyChanged}" Grid.Row="5" Grid.Column="1" Margin="0,5"/>
+                    
+                    <Button Grid.Row="6" Grid.ColumnSpan="2" Content="Scan CAD Grids" Command="{Binding ScanCadGridsCommand}" Width="150" Height="30" Margin="0,10,0,0" Background="#FFA7A7A7" HorizontalAlignment="Left"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+            <Button Content="Generate Grid in Tekla" Command="{Binding GenerateGridToTeklaCommand}" Height="40" Background="#FF2D8F2A" Foreground="White" FontWeight="Bold" Margin="0,0,10,0" Width="180"/>
+            <Button Content="Generate Components in Tekla (Dầm, Cột, Sàn)" Command="{Binding GenerateComponentsToTeklaCommand}" Height="40" Background="#FF007ACC" Foreground="White" FontWeight="Bold" Width="280"/>
+        </StackPanel>
+
     </Grid>
 </Window>
