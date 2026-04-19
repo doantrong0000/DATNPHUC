@@ -24,10 +24,20 @@ namespace DATN_AUTO_CREATE_PART.Models
 
         private void ParseDimensionsFromText(string text)
         {
-            // Simple parsing logic: format e.g. "B20x40" -> W=200, H=400 
-            // We will define it as Width/Height empty initially, or customize later
-            Width = 200;
-            Height = 400; 
+            // Parse dimensions from text like "(250x400)", "(300x600)", "400x400)", "B250x400" etc.
+            Width = 200;  // fallback defaults
+            Height = 400;
+
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            var match = System.Text.RegularExpressions.Regex.Match(text, @"(\d+)\s*[xX]\s*(\d+)");
+            if (match.Success)
+            {
+                if (double.TryParse(match.Groups[1].Value, out double w))
+                    Width = w;
+                if (double.TryParse(match.Groups[2].Value, out double h))
+                    Height = h;
+            }
         }
 
         public class BeamInfoComparerByPoint : IEqualityComparer<BeamInfo>
@@ -191,6 +201,13 @@ namespace DATN_AUTO_CREATE_PART.Models
         {
             get => _number;
             set => SetProperty(ref _number, value);
+        }
+
+        private double _thickness = 150;
+        public double Thickness
+        {
+            get => _thickness;
+            set => SetProperty(ref _thickness, value);
         }
     }
 

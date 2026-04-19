@@ -20,13 +20,16 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="Tekla.Structures">
-      <HintPath>..\..\..\..\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.dll</HintPath>
+      <HintPath>C:\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Tekla.Structures.Drawing">
-      <HintPath>..\..\..\..\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.Drawing.dll</HintPath>
+      <HintPath>C:\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.Drawing.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Tekla.Structures.Model">
-      <HintPath>..\..\..\..\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.Model.dll</HintPath>
+      <HintPath>C:\Program Files\Tekla Structures\2025.0\bin\Tekla.Structures.Model.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
 

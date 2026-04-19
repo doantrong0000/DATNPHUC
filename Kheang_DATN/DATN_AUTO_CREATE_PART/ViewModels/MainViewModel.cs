@@ -23,8 +23,19 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
         [ObservableProperty]
         private GridInfo _gridSettings = new GridInfo();
 
-        private XyzData _cadOrigin = null;
-        private Tekla.Structures.Geometry3d.Point _teklaOrigin = null;
+        // --- Layer Filters (comma-separated keywords) ---
+        [ObservableProperty]
+        private string _beamLayerFilter = "beam, dam, frame";
+
+        [ObservableProperty]
+        private string _columnLayerFilter = "col, cot";
+
+        [ObservableProperty]
+        private string _floorLayerFilter = "slab, san, floor";
+
+        [ObservableProperty]
+        private string _gridLayerFilter = "grid, axis, truc";
+
         private TSM.Model _model;
 
         public MainViewModel()
@@ -35,25 +46,85 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
             FloorCollections.Clear();
         }
 
-        private bool EnsureCadOrigin()
+        // =====================================================
+        // ORIGIN PICKING - Logic Separation
+        // =====================================================
+
+        private XyzData _cadOrigin;
+        private Tekla.Structures.Geometry3d.Point _teklaOrigin;
+
+        /// <summary>
+        /// Retrieves the origin point from AutoCAD (once per session).
+        /// </summary>
+        private XyzData RequireCadOrigin()
         {
+            if (_cadOrigin != null) return _cadOrigin;
+
+            _cadOrigin = AutoCadInterop.GetCadOrigin();
             if (_cadOrigin == null)
             {
-                _cadOrigin = AutoCadInterop.GetCadOrigin();
-                if (_cadOrigin == null)
-                {
-                    System.Windows.MessageBox.Show("CAD origin selection cancelled.", "Cancelled", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                    return false;
-                }
+                System.Windows.MessageBox.Show(
+                    "CAD origin selection cancelled.",
+                    "Cancelled",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
+            return _cadOrigin;
+        }
+
+        /// <summary>
+        /// Retrieves the origin point from Tekla (once per session).
+        /// </summary>
+        private Tekla.Structures.Geometry3d.Point RequireTeklaOrigin()
+        {
+            if (_teklaOrigin != null) return _teklaOrigin;
+
+            try
+            {
+                var picker = new Picker();
+                _teklaOrigin = picker.PickPoint("Pick origin point in Tekla");
+                return _teklaOrigin;
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    "Tekla origin picking cancelled or failed: " + ex.Message,
+                    "Cancelled",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Validates Tekla connection status.
+        /// </summary>
+        private bool EnsureTeklaConnection()
+        {
+            if (!_model.GetConnectionStatus())
+            {
+                System.Windows.MessageBox.Show(
+                    "Please open Tekla Structures and a Model before running this command.",
+                    "Tekla Not Connected",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return false;
             }
             return true;
         }
 
+        // =====================================================
+        // SCAN CAD - Each scan operation requires CAD origin
+        // =====================================================
+
         [RelayCommand]
         private void ScanCadBeams()
         {
-            if (!EnsureCadOrigin()) return;
-            AutoCadInterop.ExtractBeams(out var extractedBeams, _cadOrigin);
+            var cadOrigin = RequireCadOrigin();
+            if (cadOrigin == null) return;
+
+            // Step 2: Extract data from CAD
+            AutoCadInterop.ExtractBeams(out var extractedBeams, cadOrigin, BeamLayerFilter);
 
             var grouped = extractedBeams.GroupBy(x => x.Text);
             BeamCollections.Clear();
@@ -63,9 +134,7 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
                 var col = new BeamInfoCollection
                 {
                     Text = group.Key,
-                    Number = group.Count(),
-                    Width = 200, // default
-                    Height = 400
+                    Number = group.Count()
                 };
                 
                 foreach(var b in group)
@@ -73,9 +142,14 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
                     col.BeamInfos.Add(new BeamInfo(b.StartPoint, b.EndPoint, b.Text));
                 }
                 
-                // Group duplicates within same collection
                 col.BeamInfos = col.BeamInfos.Distinct(new BeamInfo.BeamInfoComparerByPoint()).ToList();
                 col.Number = col.BeamInfos.Count;
+
+                if (col.BeamInfos.Any())
+                {
+                    col.Width = col.BeamInfos.First().Width;
+                    col.Height = col.BeamInfos.First().Height;
+                }
 
                 BeamCollections.Add(col);
             }
@@ -84,10 +158,14 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
         [RelayCommand]
         private void ScanCadColumns()
         {
-            if (!EnsureCadOrigin()) return;
-            AutoCadInterop.ExtractColumns(out var extractedColumns, _cadOrigin);
+            var cadOrigin = RequireCadOrigin();
+            if (cadOrigin == null) return;
 
-            var grouped = extractedColumns.GroupBy(x => x.Mask);
+            AutoCadInterop.ExtractColumns(out var extractedColumns, cadOrigin, ColumnLayerFilter);
+
+            var allColumnInfos = extractedColumns.Select(c => new ColumnInfo(c.Points, "")).ToList();
+            var grouped = allColumnInfos.GroupBy(c => $"C {c.Width}x{c.Height}");
+            
             ColumnCollections.Clear();
 
             foreach (var group in grouped)
@@ -100,10 +178,10 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
 
                 foreach(var c in group)
                 {
-                    col.ColumnInfos.Add(new ColumnInfo(c.Points, c.Mask));
+                    c.Text = group.Key;
+                    col.ColumnInfos.Add(c);
                 }
 
-                // Filter valid shapes and unique
                 col.ColumnInfos = col.ColumnInfos.Distinct().ToList();
                 
                 if (col.ColumnInfos.Any())
@@ -119,8 +197,10 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
         [RelayCommand]
         private void ScanCadFloors()
         {
-            if (!EnsureCadOrigin()) return;
-            AutoCadInterop.ExtractFloors(out var extractedFloors, _cadOrigin);
+            var cadOrigin = RequireCadOrigin();
+            if (cadOrigin == null) return;
+
+            AutoCadInterop.ExtractFloors(out var extractedFloors, cadOrigin, FloorLayerFilter);
 
             FloorCollections.Clear();
 
@@ -139,8 +219,10 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
         [RelayCommand]
         private void ScanCadGrids()
         {
-            if (!EnsureCadOrigin()) return;
-            AutoCadInterop.ExtractGrids(out string cX, out string cY, out string lX, out string lY, _cadOrigin);
+            var cadOrigin = RequireCadOrigin();
+            if (cadOrigin == null) return;
+
+            AutoCadInterop.ExtractGrids(out string cX, out string cY, out string lX, out string lY, cadOrigin, GridLayerFilter);
             if (cX != "0" || cY != "0")
             {
                 GridSettings.CoordinateX = cX;
@@ -150,75 +232,55 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
             }
         }
 
+        // =====================================================
+        // GENERATE TEKLA - Requires both CAD and Tekla origins
+        // =====================================================
+
         [RelayCommand]
         private void GenerateGridToTekla()
         {
-            if (!_model.GetConnectionStatus())
-            {
-                System.Windows.MessageBox.Show("Please open Tekla Structures and a Model before running this command.", "Tekla Not Connected", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                return;
-            }
+            if (!EnsureTeklaConnection()) return;
 
-            if (_teklaOrigin == null)
-            {
-                WindowFocusHelper.BringToFront("TeklaStructures");
-                var picker = new Picker();
-                try
-                {
-                    _teklaOrigin = picker.PickPoint("Pick origin point in Tekla (once per project)");
-                }
-                catch (System.Exception ex) 
-                { 
-                    System.Windows.MessageBox.Show("Picking point cancelled or failed: " + ex.Message);
-                    return; 
-                }
-            }
+            var teklaOrigin = RequireTeklaOrigin();
+            if (teklaOrigin == null) return;
 
-            if (_teklaOrigin != null)
-            {
-                TeklaInterop.GenerateStandardGrid(_teklaOrigin, GridSettings);
-                System.Windows.MessageBox.Show("Grid generated successfully!", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-            }
+            // Step 2: Generate grid
+            TeklaInterop.GenerateStandardGrid(teklaOrigin, GridSettings);
+            System.Windows.MessageBox.Show(
+                "Grid generated successfully!",
+                "Success",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
         }
 
         [RelayCommand]
         private void GenerateComponentsToTekla()
         {
-            if (!_model.GetConnectionStatus())
-            {
-                System.Windows.MessageBox.Show("Please open Tekla Structures and a Model before running this command.", "Tekla Not Connected", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                return;
-            }
+            if (!EnsureTeklaConnection()) return;
 
             if (_cadOrigin == null)
             {
-                System.Windows.MessageBox.Show("CAD origin is missing. Please scan elements from CAD first.", "No CAD Data", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(
+                    "Please scan at least one CAD part first to define the CAD origin.",
+                    "CAD Origin Missing",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
                 return;
             }
 
-            if (_teklaOrigin == null)
-            {
-                WindowFocusHelper.BringToFront("TeklaStructures");
-                var picker = new Picker();
-                try
-                {
-                    _teklaOrigin = picker.PickPoint("Pick origin point in Tekla (once per project)");
-                }
-                catch (System.Exception ex) 
-                { 
-                    System.Windows.MessageBox.Show("Picking point cancelled or failed: " + ex.Message);
-                    return; 
-                }
-            }
+            var teklaOrigin = RequireTeklaOrigin();
+            if (teklaOrigin == null) return;
 
-            if (_teklaOrigin != null)
-            {
-                TeklaInterop.GenerateBeams(BeamCollections, _cadOrigin, _teklaOrigin);
-                TeklaInterop.GenerateColumns(ColumnCollections, _cadOrigin, _teklaOrigin);
-                TeklaInterop.GenerateFloors(FloorCollections, _cadOrigin, _teklaOrigin);
+            // Generate components using the separated origins
+            TeklaInterop.GenerateBeams(BeamCollections, _cadOrigin, teklaOrigin);
+            TeklaInterop.GenerateColumns(ColumnCollections, _cadOrigin, teklaOrigin);
+            TeklaInterop.GenerateFloors(FloorCollections, _cadOrigin, teklaOrigin);
 
-                System.Windows.MessageBox.Show("Components generated successfully in Tekla!", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
-            }
+            System.Windows.MessageBox.Show(
+                "Components generated successfully in Tekla!",
+                "Success",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
         }
     }
 }

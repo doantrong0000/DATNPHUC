@@ -9,12 +9,43 @@ namespace DATN_AUTO_CREATE_PART.Utils
 {
     public static class AutoCadInterop
     {
+        // =====================================================
+        // LAYER FILTER - Lọc entity theo tên layer
+        // =====================================================
+
+        /// <summary>
+        /// Parse chuỗi filter "beam, dam, frame" thành danh sách keywords uppercase.
+        /// </summary>
+        private static string[] ParseLayerKeywords(string layerFilter)
+        {
+            if (string.IsNullOrWhiteSpace(layerFilter)) return new string[0];
+            return layerFilter
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(k => k.Trim().ToUpperInvariant())
+                .Where(k => k.Length > 0)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Kiểm tra tên layer có chứa bất kỳ keyword nào không (case-insensitive).
+        /// Nếu không có filter (rỗng), chấp nhận tất cả.
+        /// </summary>
+        private static bool MatchesLayerFilter(string layerName, string[] keywords)
+        {
+            if (keywords == null || keywords.Length == 0) return true;
+            string upper = (layerName ?? "").ToUpperInvariant();
+            return keywords.Any(k => upper.Contains(k));
+        }
         public static XyzData GetCadOrigin()
         {
             try
             {
                 dynamic a = Marshal.GetActiveObject("AutoCAD.Application");
+                a.Visible = true;
+                a.WindowState = 3; // Maximized
+                
                 dynamic doc = a.ActiveDocument;
+                try { doc.Activate(); } catch { }
                 
                 WindowFocusHelper.BringToFront("acad");
                 
@@ -28,9 +59,10 @@ namespace DATN_AUTO_CREATE_PART.Utils
             }
         }
 
-        public static void ExtractBeams(out List<CadBeams> extractedBeams, XyzData originPoint)
+        public static void ExtractBeams(out List<CadBeams> extractedBeams, XyzData originPoint, string layerFilter = "")
         {
             extractedBeams = new List<CadBeams>();
+            var keywords = ParseLayerKeywords(layerFilter);
 
             try
             {
@@ -41,86 +73,84 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 try { a.ActiveDocument.Activate(); } catch { }
 
                 dynamic doc = a.ActiveDocument;
-                string[] arrPoint = null;
 
-                try
+                var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
+                newset.SelectOnScreen();
+
+                List<dynamic> listText = new List<dynamic>();
+                List<dynamic> listLine = new List<dynamic>();
+
+                foreach (dynamic s in newset)
                 {
-                    var pointCad = doc.Utility.GetPoint(Type.Missing, "\nSelect origin point: ");
-                    arrPoint = ((IEnumerable)pointCad).Cast<object>().Select(x => x.ToString()).ToArray();
+                    if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText") 
+                    {
+                        string t = CleanCadText(s.TextString);
+                        // Beams require "bXh" format in text to be valid dimension labels
+                        if (System.Text.RegularExpressions.Regex.IsMatch(t, @"\d+\s*[xX*]\s*\d+"))
+                        {
+                            listText.Add(s);
+                        }
+                        continue;
+                    }
+
+                    if (!MatchesLayerFilter((string)s.Layer, keywords)) continue;
+
+                    if (s.EntityName == "AcDbLine") listLine.Add(s);
                 }
-                catch { }
 
-                if (arrPoint != null)
+                List<TextData> listpoint = new List<TextData>();
+                foreach (var text in listText)
                 {
-                    originPoint = new XyzData(Convert.ToDouble(arrPoint[0]), Convert.ToDouble(arrPoint[1]), Convert.ToDouble(arrPoint[2]));
-
-                    WindowFocusHelper.BringToFront("acad");
-                    var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
-                    newset.SelectOnScreen();
-
-                    List<dynamic> listText = new List<dynamic>();
-                    List<dynamic> listLine = new List<dynamic>();
-
-                    foreach (dynamic s in newset)
+                    try
                     {
-                        if (s.EntityName == "AcDbLine") listLine.Add(s);
-                        if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText") listText.Add(s);
-                    }
-
-                    List<TextData> listpoint = new List<TextData>();
-                    foreach (var text in listText)
-                    {
-                        try
+                        string[] arrtextpoint = ((IEnumerable)text.InsertionPoint).Cast<object>().Select(x => x.ToString()).ToArray();
+                        listpoint.Add(new TextData()
                         {
-                            string[] arrtextpoint = ((IEnumerable)text.InsertionPoint).Cast<object>().Select(x => x.ToString()).ToArray();
-                            listpoint.Add(new TextData()
-                            {
-                                Point = new XyzData(Convert.ToDouble(arrtextpoint[0]), Convert.ToDouble(arrtextpoint[1]), Convert.ToDouble(arrtextpoint[2])),
-                                Text = text.TextString
-                            });
-                        } catch { }
-                    }
+                            Point = new XyzData(Convert.ToDouble(arrtextpoint[0]), Convert.ToDouble(arrtextpoint[1]), Convert.ToDouble(arrtextpoint[2])),
+                            Text = text.TextString
+                        });
+                    } catch { }
+                }
 
-                    foreach (var line in listLine)
+                foreach (var line in listLine)
+                {
+                    try
                     {
-                        try
+                        dynamic startpointarr = line.StartPoint;
+                        dynamic endpointarr = line.EndPoint;
+
+                        var startpoint = new XyzData((double)startpointarr[0], (double)startpointarr[1], (double)startpointarr[2]);
+                        var endpoint = new XyzData((double)endpointarr[0], (double)endpointarr[1], (double)endpointarr[2]);
+
+                        string beamText = "Undefined";
+                        if (listpoint.Count > 0)
                         {
-                            dynamic startpointarr = line.StartPoint;
-                            dynamic endpointarr = line.EndPoint;
-
-                            var startpoint = new XyzData((double)startpointarr[0], (double)startpointarr[1], (double)startpointarr[2]);
-                            var endpoint = new XyzData((double)endpointarr[0], (double)endpointarr[1], (double)endpointarr[2]);
-
-                            string beamText = "Undefined";
-                            if (listpoint.Count > 0)
+                            var textData = listpoint.OrderBy(x => x.Point.DistanceTo(startpoint)).FirstOrDefault();
+                            if (textData != null)
                             {
-                                var textData = listpoint.OrderBy(x => x.Point.DistanceTo(startpoint)).FirstOrDefault();
-                                if (textData != null)
-                                {
-                                    beamText = textData.Text;
-                                }
+                                beamText = textData.Text;
                             }
+                        }
 
-                            extractedBeams.Add(new CadBeams()
-                            {
-                                StartPoint = startpoint,
-                                EndPoint = endpoint,
-                                Text = beamText
-                            });
-                        } catch { }
-                    }
+                        extractedBeams.Add(new CadBeams()
+                        {
+                            StartPoint = startpoint,
+                            EndPoint = endpoint,
+                            Text = beamText
+                        });
+                    } catch { }
                 }
             }
             catch (Exception ex)
             {
-                // Simple logging or console out
                 Console.WriteLine("AutoCAD Error: " + ex.Message);
             }
         }
 
-        public static void ExtractColumns(out List<CadRectangle> extractedColumns, XyzData originPoint)
+        public static void ExtractColumns(out List<CadRectangle> extractedColumns, XyzData originPoint, string layerFilter = "")
         {
             extractedColumns = new List<CadRectangle>();
+            var keywords = ParseLayerKeywords(layerFilter);
 
             try
             {
@@ -131,79 +161,41 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 try { a.ActiveDocument.Activate(); } catch { }
 
                 dynamic doc = a.ActiveDocument;
-                string[] arrPoint = null;
 
-                try
+                var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
+                newset.SelectOnScreen();
+
+                List<dynamic> listPolyline = new List<dynamic>();
+
+                foreach (dynamic s in newset)
                 {
-                    var pointCad = doc.Utility.GetPoint(Type.Missing, "\nSelect origin point: ");
-                    arrPoint = ((IEnumerable)pointCad).Cast<object>().Select(x => x.ToString()).ToArray();
+                    if (!MatchesLayerFilter((string)s.Layer, keywords)) continue;
+                    
+                    if (s.EntityName == "AcDbPolyline") listPolyline.Add(s);
                 }
-                catch { }
 
-                if (arrPoint != null)
+                foreach (var polyline in listPolyline)
                 {
-                    originPoint = new XyzData(Convert.ToDouble(arrPoint[0]), Convert.ToDouble(arrPoint[1]), Convert.ToDouble(arrPoint[2]));
-
-                    WindowFocusHelper.BringToFront("acad");
-                    var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
-                    newset.SelectOnScreen();
-
-                    List<dynamic> listText = new List<dynamic>();
-                    List<dynamic> listPolyline = new List<dynamic>();
-
-                    foreach (dynamic s in newset)
+                    try
                     {
-                        if (s.EntityName == "AcDbPolyline") listPolyline.Add(s);
-                        if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText") listText.Add(s);
-                    }
-
-                    List<TextData> listpoint = new List<TextData>();
-                    foreach (var text in listText)
-                    {
-                        try
+                        dynamic c = polyline.Coordinates;
+                        if (c.Length == 8) // 4 points * 2 (X,Y)
                         {
-                            string[] arrtextpoint = ((IEnumerable)text.InsertionPoint).Cast<object>().Select(x => x.ToString()).ToArray();
-                            listpoint.Add(new TextData()
+                            var point1 = new XyzData((double)c[0], (double)c[1], 0);
+                            var point2 = new XyzData((double)c[2], (double)c[3], 0);
+                            var point3 = new XyzData((double)c[4], (double)c[5], 0);
+                            var point4 = new XyzData((double)c[6], (double)c[7], 0);
+
+                            extractedColumns.Add(new CadRectangle()
                             {
-                                Point = new XyzData(Convert.ToDouble(arrtextpoint[0]), Convert.ToDouble(arrtextpoint[1]), Convert.ToDouble(arrtextpoint[2])),
-                                Text = text.TextString
+                                P1 = point1,
+                                P2 = point2,
+                                P3 = point3,
+                                P4 = point4,
+                                Mask = ""
                             });
-                        } catch { }
-                    }
-
-                    foreach (var polyline in listPolyline)
-                    {
-                        try
-                        {
-                            dynamic c = polyline.Coordinates;
-                            if (c.Length == 8) // 4 points * 2 (X,Y)
-                            {
-                                var point1 = new XyzData((double)c[0], (double)c[1], 0);
-                                var point2 = new XyzData((double)c[2], (double)c[3], 0);
-                                var point3 = new XyzData((double)c[4], (double)c[5], 0);
-                                var point4 = new XyzData((double)c[6], (double)c[7], 0);
-
-                                string mask = "Undefined";
-                                if (listpoint.Count > 0)
-                                {
-                                    var textData = listpoint.OrderBy(x => x.Point.DistanceTo(point1)).FirstOrDefault();
-                                    if (textData != null)
-                                    {
-                                        mask = textData.Text;
-                                    }
-                                }
-
-                                extractedColumns.Add(new CadRectangle()
-                                {
-                                    P1 = point1,
-                                    P2 = point2,
-                                    P3 = point3,
-                                    P4 = point4,
-                                    Mask = mask
-                                });
-                            }
-                        } catch { }
-                    }
+                        }
+                    } catch { }
                 }
             }
             catch (Exception ex)
@@ -212,9 +204,10 @@ namespace DATN_AUTO_CREATE_PART.Utils
             }
         }
 
-        public static void ExtractFloors(out List<CadFloor> extractedFloors, XyzData originPoint)
+        public static void ExtractFloors(out List<CadFloor> extractedFloors, XyzData originPoint, string layerFilter = "")
         {
             extractedFloors = new List<CadFloor>();
+            var keywords = ParseLayerKeywords(layerFilter);
 
             try
             {
@@ -224,64 +217,51 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 try { a.ActiveDocument.Activate(); } catch { }
 
                 dynamic doc = a.ActiveDocument;
-                string[] arrPoint = null;
 
-                try
+                var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
+                newset.SelectOnScreen();
+
+                List<dynamic> listPolylines = new List<dynamic>();
+
+                foreach (dynamic s in newset)
                 {
-                    var pointCad = doc.Utility.GetPoint(Type.Missing, "\nSelect origin point: ");
-                    arrPoint = ((IEnumerable)pointCad).Cast<object>().Select(x => x.ToString()).ToArray();
+                    if (!MatchesLayerFilter((string)s.Layer, keywords)) continue;
+                    if (s.EntityName == "AcDbPolyline") listPolylines.Add(s);
                 }
-                catch { }
 
-                if (arrPoint != null)
+                foreach (var polyline in listPolylines)
                 {
-                    originPoint = new XyzData(Convert.ToDouble(arrPoint[0]), Convert.ToDouble(arrPoint[1]), Convert.ToDouble(arrPoint[2]));
-
-                    WindowFocusHelper.BringToFront("acad");
-                    var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
-                    newset.SelectOnScreen();
-
-                    List<dynamic> listPolylines = new List<dynamic>();
-
-                    foreach (dynamic s in newset)
+                    try
                     {
-                        if (s.EntityName == "AcDbPolyline" || s.EntityName == "AcDbPolyline") listPolylines.Add(s);
-                    }
-
-                    foreach (var polyline in listPolylines)
-                    {
-                        try
+                        dynamic c = polyline.Coordinates;
+                        int vCount = ((IEnumerable)c).Cast<object>().Count() / 2;
+                        var pts = new List<XyzData>();
+                        for (int j = 0; j < vCount; j++)
                         {
-                            dynamic c = polyline.Coordinates;
-                            int vCount = ((IEnumerable)c).Cast<object>().Count() / 2;
-                            var pts = new List<XyzData>();
-                            for (int j = 0; j < vCount; j++)
-                            {
-                                pts.Add(new XyzData((double)c[j * 2], (double)c[j * 2 + 1], 0));
-                            }
+                            pts.Add(new XyzData((double)c[j * 2], (double)c[j * 2 + 1], 0));
+                        }
 
-                            // Filter redundant points logic from ProjectApp
-                            for (int item = 0; item < pts.Count; item++)
+                        // Filter redundant points logic from ProjectApp
+                        for (int item = 0; item < pts.Count; item++)
+                        {
+                            for (int item1 = pts.Count - 1; item1 > item; item1--)
                             {
-                                for (int item1 = pts.Count - 1; item1 > item; item1--)
+                                if (pts[item].DistanceTo(pts[item1]) < 0.08)
                                 {
-                                    if (pts[item].DistanceTo(pts[item1]) < 0.08)
-                                    {
-                                        pts.RemoveAt(item1);
-                                    }
+                                    pts.RemoveAt(item1);
                                 }
                             }
+                        }
 
-                            double area = 0;
-                            try { area = polyline.Area / 1000000.0; } catch { } // Area in m2 approx
+                        double area = 0;
+                        try { area = polyline.Area / 1000000.0; } catch { } // Area in m2 approx
 
-                            extractedFloors.Add(new CadFloor()
-                            {
-                                Points = pts,
-                                Area = Math.Round(area, 2)
-                            });
-                        } catch { }
-                    }
+                        extractedFloors.Add(new CadFloor()
+                        {
+                            Points = pts,
+                            Area = Math.Round(area, 2)
+                        });
+                    } catch { }
                 }
             }
             catch (Exception ex)
@@ -290,9 +270,10 @@ namespace DATN_AUTO_CREATE_PART.Utils
             }
         }
 
-        public static void ExtractGrids(out string coordX, out string coordY, out string labelX, out string labelY, XyzData originPoint)
+        public static void ExtractGrids(out string coordX, out string coordY, out string labelX, out string labelY, XyzData originPoint, string layerFilter = "")
         {
             coordX = "0"; coordY = "0"; labelX = "1"; labelY = "A";
+            var keywords = ParseLayerKeywords(layerFilter);
 
             try
             {
@@ -306,7 +287,6 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 if (originPoint != null)
                 {
                     double[] origin = new double[] { originPoint.X, originPoint.Y };
-                    WindowFocusHelper.BringToFront("acad");
                     var newset = doc.SelectionSets.Add(Guid.NewGuid().ToString());
                     newset.SelectOnScreen();
 
@@ -315,14 +295,18 @@ namespace DATN_AUTO_CREATE_PART.Utils
 
                     foreach (dynamic s in newset)
                     {
-                        if (s.EntityName == "AcDbLine") 
-                        {
-                            lines.Add(s);
-                        }
-                        else if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText") 
+                        if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText") 
                         {
                             double[] ins = ((IEnumerable)s.InsertionPoint).Cast<double>().ToArray();
                             texts.Add((ins, CleanCadText(s.TextString)));
+                            continue;
+                        }
+
+                        if (!MatchesLayerFilter((string)s.Layer, keywords)) continue;
+
+                        if (s.EntityName == "AcDbLine") 
+                        {
+                            lines.Add(s);
                         }
                         else if (s.EntityName == "AcDbBlockReference")
                         {
@@ -334,7 +318,7 @@ namespace DATN_AUTO_CREATE_PART.Utils
                                     if (!string.IsNullOrWhiteSpace(att.TextString))
                                     {
                                         texts.Add((ins, CleanCadText(att.TextString)));
-                                        break; // Usually first non-empty attribute is the bubble label
+                                        break;
                                     }
                                 }
                             }

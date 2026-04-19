@@ -90,7 +90,7 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 foreach (var pts in collection.FloorPoints)
                 {
                     ContourPlate cp = new ContourPlate();
-                    cp.Profile.ProfileString = "200"; // Default thickness 200mm
+                    cp.Profile.ProfileString = collection.Thickness.ToString(); // Use input thickness
                     cp.Material.MaterialString = "C25/30";
                     cp.Class = "1";
 
