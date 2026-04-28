@@ -70,7 +70,9 @@ namespace DATN_AUTO_CREATE_PART.Utils
                         Name = collection.Text
                     };
                     
-                    // Rotate
+                    // Center and Rotate
+                    teklaColumn.Position.Plane = Position.PlaneEnum.MIDDLE;
+                    teklaColumn.Position.Depth = Position.DepthEnum.MIDDLE;
                     teklaColumn.Position.Rotation = Position.RotationEnum.FRONT;
                     teklaColumn.Position.RotationOffset = colInfo.Rotation * 180 / Math.PI;
 
@@ -113,6 +115,16 @@ namespace DATN_AUTO_CREATE_PART.Utils
         {
             Model model = new Model();
             if (!model.GetConnectionStatus()) return;
+
+            // Delete existing grids first
+            var gridEnum = model.GetModelObjectSelector().GetAllObjectsWithType(ModelObject.ModelObjectEnum.GRID);
+            while (gridEnum.MoveNext())
+            {
+                if (gridEnum.Current != null)
+                {
+                    gridEnum.Current.Delete();
+                }
+            }
 
             Grid grid = new Grid
             {

@@ -166,9 +166,19 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 newset.SelectOnScreen();
 
                 List<dynamic> listPolyline = new List<dynamic>();
+                List<TextData> listText = new List<TextData>();
 
                 foreach (dynamic s in newset)
                 {
+                    if (s.EntityName == "AcDbText" || s.EntityName == "AcDbMText")
+                    {
+                        string t = CleanCadText(s.TextString);
+                        // Optional: only pick text that looks like a column label or dimension
+                        double[] ins = ((IEnumerable)s.InsertionPoint).Cast<double>().ToArray();
+                        listText.Add(new TextData { Point = new XyzData(ins[0], ins[1], ins[2]), Text = t });
+                        continue;
+                    }
+
                     if (!MatchesLayerFilter((string)s.Layer, keywords)) continue;
                     
                     if (s.EntityName == "AcDbPolyline") listPolyline.Add(s);
@@ -178,21 +188,37 @@ namespace DATN_AUTO_CREATE_PART.Utils
                 {
                     try
                     {
-                        dynamic c = polyline.Coordinates;
-                        if (c.Length == 8) // 4 points * 2 (X,Y)
+                        object objCoords = polyline.Coordinates;
+                        double[] c = null;
+                        if (objCoords is double[] da) c = da;
+                        else if (objCoords is IEnumerable ie) c = ie.Cast<object>().Select(Convert.ToDouble).ToArray();
+
+                        if (c != null && c.Length >= 8) // At least 4 points * 2 (X,Y)
                         {
-                            var point1 = new XyzData((double)c[0], (double)c[1], 0);
-                            var point2 = new XyzData((double)c[2], (double)c[3], 0);
-                            var point3 = new XyzData((double)c[4], (double)c[5], 0);
-                            var point4 = new XyzData((double)c[6], (double)c[7], 0);
+                            var pts = new List<XyzData>();
+                            for (int i = 0; i < c.Length / 2; i++)
+                            {
+                                pts.Add(new XyzData(c[i * 2], c[i * 2 + 1], 0));
+                            }
+
+                            string mask = "";
+                            if (listText.Count > 0)
+                            {
+                                var center = new XyzData(pts.Average(p => p.X), pts.Average(p => p.Y), 0);
+                                var closestText = listText.OrderBy(t => t.Point.DistanceTo(center)).FirstOrDefault();
+                                if (closestText != null && closestText.Point.DistanceTo(center) < 1000) // 1m threshold
+                                {
+                                    mask = closestText.Text;
+                                }
+                            }
 
                             extractedColumns.Add(new CadRectangle()
                             {
-                                P1 = point1,
-                                P2 = point2,
-                                P3 = point3,
-                                P4 = point4,
-                                Mask = ""
+                                P1 = pts[0],
+                                P2 = pts[1],
+                                P3 = pts[2],
+                                P4 = pts[3],
+                                Mask = mask
                             });
                         }
                     } catch { }
@@ -405,7 +431,6 @@ namespace DATN_AUTO_CREATE_PART.Utils
         {
             if (absolutePositions.Count == 0) return "0";
             List<string> spaces = new List<string> { "0" };
-            double last = 0; // The first point should ideally be at passing 0, unless origin was placed offset. If offset, shift everyone so first is 0.
             double shift = absolutePositions[0]; // shift all to start at 0
             
             for (int i = 1; i < absolutePositions.Count; i++)

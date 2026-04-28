@@ -96,6 +96,34 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void SetCadOrigin()
+        {
+            var newOrigin = AutoCadInterop.GetCadOrigin();
+            if (newOrigin != null)
+            {
+                _cadOrigin = newOrigin;
+                System.Windows.MessageBox.Show("AutoCAD Origin updated successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+            }
+        }
+
+        [RelayCommand]
+        private void SetTeklaOrigin()
+        {
+            if (!EnsureTeklaConnection()) return;
+            try
+            {
+                var picker = new Picker();
+                var newOrigin = picker.PickPoint("Pick NEW origin point in Tekla");
+                if (newOrigin != null)
+                {
+                    _teklaOrigin = newOrigin;
+                    System.Windows.MessageBox.Show("Tekla Origin updated successfully.", "Success", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                }
+            }
+            catch { }
+        }
+
         /// <summary>
         /// Validates Tekla connection status.
         /// </summary>
@@ -163,8 +191,10 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
 
             AutoCadInterop.ExtractColumns(out var extractedColumns, cadOrigin, ColumnLayerFilter);
 
-            var allColumnInfos = extractedColumns.Select(c => new ColumnInfo(c.Points, "")).ToList();
-            var grouped = allColumnInfos.GroupBy(c => $"C {c.Width}x{c.Height}");
+            var allColumnInfos = extractedColumns.Select(c => new ColumnInfo(c.Points, c.Mask)).ToList();
+            
+            // Group by dimensions (Width and Height)
+            var grouped = allColumnInfos.GroupBy(c => new { c.Width, c.Height });
             
             ColumnCollections.Clear();
 
@@ -172,25 +202,22 @@ namespace DATN_AUTO_CREATE_PART.ViewModels
             {
                 var col = new ColumnInfoCollection
                 {
-                    Text = group.Key,
+                    Width = group.Key.Width,
+                    Height = group.Key.Height,
+                    Text = $"{group.Key.Width}x{group.Key.Height}",
                     Number = group.Count()
                 };
 
                 foreach(var c in group)
                 {
-                    c.Text = group.Key;
                     col.ColumnInfos.Add(c);
                 }
 
+                // Ensure unique entries if needed, though they should be distinct by Center already
                 col.ColumnInfos = col.ColumnInfos.Distinct().ToList();
+                col.Number = col.ColumnInfos.Count;
                 
-                if (col.ColumnInfos.Any())
-                {
-                    col.Width = col.ColumnInfos.First().Width;
-                    col.Height = col.ColumnInfos.First().Height;
-                    col.Number = col.ColumnInfos.Count;
-                    ColumnCollections.Add(col);
-                }
+                ColumnCollections.Add(col);
             }
         }
 

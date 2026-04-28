@@ -116,16 +116,17 @@ namespace DATN_AUTO_CREATE_PART.Models
             double d1 = p1.DistanceTo(p2);
             double d2 = p2.DistanceTo(p3);
 
+            // Reverting to original logic but swapping Height and Width for Tekla compatibility
             if (d1 >= d2)
             {
-                Height = d1;
-                Width = d2;
+                Height = d2;
+                Width = d1;
                 Rotation = Math.Atan2(p2.Y - p1.Y, p2.X - p1.X);
             }
             else
             {
-                Height = d2;
-                Width = d1;
+                Height = d1;
+                Width = d2;
                 Rotation = Math.Atan2(p3.Y - p2.Y, p3.X - p2.X);
             }
 
@@ -183,6 +184,8 @@ namespace DATN_AUTO_CREATE_PART.Models
             get => _number;
             set => SetProperty(ref _number, value);
         }
+
+        public string Size => $"{Width} x {Height}";
     }
 
     public class FloorInfoCollection : ObservableObject
